@@ -63,31 +63,4 @@ public class VendingMachine {
 
 		return transaction;
 	}
-
-	public void generateReport() {
-		if (transactions.isEmpty()) {
-			System.out.println("No transactions yet.");
-			return;
-		}
-
-		System.out.println("\n===== Sales Report =====\n");
-
-		for (Transaction t : transactions) {
-			System.out.println("Transaction Date: " + t.getTimestampString());
-			double total = 0;
-
-			for (Map.Entry<Product, Integer> entry : t.getProducts().entrySet()) {
-				Product p = entry.getKey();
-				int qty = entry.getValue();
-				double lineTotal = p.getPrice() * qty;
-				System.out.printf("%-15s x%-2d - $%.2f%n", p.getName(), qty, lineTotal);
-				total += lineTotal;
-			}
-
-			System.out.printf("Transaction Total: $%.2f%n", total);
-			System.out.println("-------------------------------");
-		}
-		System.out.println("===== End of Report =====\n");
-	}
-
 }

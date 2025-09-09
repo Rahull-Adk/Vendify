@@ -92,9 +92,8 @@ public class Admin {
         String prodId = JOptionPane.showInputDialog(parent, "Enter Product ID to restock:");
         if (prodId == null) return;
 
-        Product prod = vm.getProducts().stream()
-                .filter(p -> p.getId().equalsIgnoreCase(prodId))
-                .findFirst().orElse(null);
+
+        Product prod = ProductFileManager.findProductById(prodId, vm.getProducts());
 
         if (prod == null) {
             JOptionPane.showMessageDialog(parent, "Invalid product ID.");
