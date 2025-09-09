@@ -144,13 +144,30 @@ public class Admin {
     }
 
     public Card createNewCardGUI(List<User> allUsers, String filename) {
-        String name = JOptionPane.showInputDialog(null, "Enter user name:");
+        String name = null;
+        while (true) {
+            name = JOptionPane.showInputDialog(null, "Enter user name:");
+            if (name == null) {
+                return null;
+            }
+
+            name = name.trim();
+            if (name.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Username cannot be empty!");
+                continue;
+            }
+            if (UserFileManager.usernameExists(name, filename)) {
+                JOptionPane.showMessageDialog(null, "Username already exists! Please choose another.");
+            } else {
+                break;
+            }
+        }
 
         String cardId;
         boolean exists;
         do {
             int randomNum = 100000 + (int)(Math.random() * 900000);
-            cardId =  String.valueOf(randomNum);
+            cardId = String.valueOf(randomNum);
 
             exists = false;
             for (User u : allUsers) {
@@ -167,6 +184,8 @@ public class Admin {
         JOptionPane.showMessageDialog(null, "New card created: " + cardId);
         return card;
     }
+
+
 
 
 }
