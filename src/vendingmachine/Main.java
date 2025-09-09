@@ -129,7 +129,14 @@ public class Main extends JFrame {
 
             String qtyStr = JOptionPane.showInputDialog(this, "Enter quantity:");
             if (qtyStr == null) break;
-            int qty = Integer.parseInt(qtyStr);
+
+            int qty;
+            try {
+                qty = Integer.parseInt(qtyStr);
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Invalid quantity!");
+                continue;
+            }
 
             if (qty <= 0 || qty > selected.getQuantity()) {
                 JOptionPane.showMessageDialog(this, "Invalid quantity!");
@@ -159,35 +166,46 @@ public class Main extends JFrame {
         PaymentMethod payment;
         User user = null;
 
-        if (payChoice == 0) {
-            String hasCard = JOptionPane.showInputDialog(this, "Do you already have a card? (yes/no)");
-            if (hasCard == null || hasCard.isEmpty()) return;
+        if (payChoice == 0) { 
+            int hasCard = JOptionPane.showConfirmDialog(this,
+                    "Do you already have a card?",
+                    "Card Confirmation",
+                    JOptionPane.YES_NO_OPTION);
 
-            if (hasCard.equalsIgnoreCase("yes")) {
+            if (hasCard == JOptionPane.YES_OPTION) {
                 String cardId = JOptionPane.showInputDialog(this, "Enter your card ID:");
+                if (cardId == null) return;
+
                 user = CardFileManager.findUserByCardId(cardId, "cards.csv");
                 if (user == null) {
                     JOptionPane.showMessageDialog(this, "Card not found. Contact admin.");
                     return;
                 }
+
+            } else if (hasCard == JOptionPane.NO_OPTION) {
+                JOptionPane.showMessageDialog(this, 
+                    "You don’t have a card. Please contact the admin to create one.");
+                return;
             } else {
-                user = new User(JOptionPane.showInputDialog(this, "Enter your name:"), 
-                        admin.createNewCardGUI(allUsers, "cards.csv"));
+                return; 
             }
+
             payment = user.getCard();
 
         } else if (payChoice == 1) { 
             String cashStr = JOptionPane.showInputDialog(this, "Insert cash amount:");
             if (cashStr == null) return;
             payment = new Cash(Double.parseDouble(cashStr));
-        } else return;
 
-    
+        } else {
+            return;
+        }
+
         Transaction transaction = vm.processTransaction(user, cart, payment);
 
         if (transaction == null) {
             JOptionPane.showMessageDialog(this, "Payment failed! Check balance.");
-            return; 
+            return;
         }
 
         ProductFileManager.saveProducts(vm.getProducts(), "products.csv");
@@ -196,8 +214,11 @@ public class Main extends JFrame {
         List<Transaction> transactions = TransactionFileManager.loadTransactions("transactions.csv", vm.getProducts());
         transactions.add(transaction);
         TransactionFileManager.saveTransactions(transactions, "transactions.csv");
+
         transaction.generateReceipt().showGUI(this);
     }
+
+
 
 
     public static void main(String[] args) {
